@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Rap Sheet | Live Leaderboard</title>
+<meta property="og:title" content="The Rap Sheet | Live Leaderboard">
+<meta property="og:description" content="Who's winning the Outlaw build-up week? Tap to see the standings.">
+<meta name="theme-color" content="#0b0b12">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Modak&family=Gochi+Hand&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#5f528f; --deep:#463a75; --panel:rgba(255,255,255,.10); --panel2:rgba(255,255,255,.14); --line:rgba(255,255,255,.22);
+    --text:#ffffff; --muted:#d9d3f0; --lav:#b9aee6; --ink:#2e2552;
+    --display:"Modak",system-ui,sans-serif; --hand:"Gochi Hand",cursive;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--text);font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+  body{min-height:100vh;overflow-x:hidden;padding-bottom:40px;
+    background:radial-gradient(120% 80% at 50% 0%, #7a6db0 0%, var(--bg) 45%, var(--deep) 100%) fixed}
+  /* halftone grain */
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.18;
+    background-image:radial-gradient(rgba(255,255,255,.9) 1px, transparent 1.3px);background-size:5px 5px;mix-blend-mode:overlay}
+  /* sunglasses-lens vignette */
+  body::after{content:"";position:fixed;inset:-10%;pointer-events:none;z-index:0;
+    box-shadow:inset 0 0 120px 60px rgba(46,37,82,.55);border-radius:30%}
+  .wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:20px 16px}
+
+  header{text-align:center;padding:22px 0 6px}
+  .splat{width:64px;height:64px;display:block;margin:0 auto 6px;animation:spin 14s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .kicker{display:inline-flex;align-items:center;gap:8px;font-family:var(--hand);font-size:20px;letter-spacing:.06em;text-transform:uppercase;color:var(--text)}
+  .live-dot{width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 0 0 rgba(255,255,255,.7);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.7)}70%{box-shadow:0 0 0 10px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+  h1{font-family:var(--display);font-weight:400;font-size:clamp(64px,19vw,128px);line-height:.8;margin:6px 0 10px;color:#fff;
+    text-transform:lowercase;letter-spacing:-.01em;transform:rotate(-3deg);text-shadow:0 6px 0 rgba(46,37,82,.35);animation:wobble 4s ease-in-out infinite}
+  @keyframes wobble{50%{transform:rotate(-1deg) scale(1.02)}}
+  .logo{max-width:min(420px,85%);display:block;margin:4px auto 10px;transform:rotate(-3deg)}
+  .sub{font-weight:700;font-size:17px;text-transform:uppercase;letter-spacing:.01em}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px}
+  .chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;color:var(--muted);backdrop-filter:blur(4px)}
+  .chip b{color:#fff}
+  .countdown b{font-weight:700;font-variant-numeric:tabular-nums}
+
+  .ticker{margin:22px -16px 0;background:#fff;color:var(--deep);overflow:hidden;white-space:nowrap;transform:rotate(-1.5deg)}
+  .ticker-track{display:inline-block;padding:9px 0;font-family:var(--hand);font-size:19px;text-transform:uppercase;letter-spacing:.04em;animation:scroll 30s linear infinite}
+  .ticker-track span{margin:0 18px}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  .podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:end;gap:10px;margin:46px 0 10px}
+  .pod{text-align:center;cursor:pointer;opacity:0;transform:translateY(30px);animation:rise .7s cubic-bezier(.2,1.4,.4,1) forwards}
+  .pod.p1{animation-delay:.5s}.pod.p2{animation-delay:.25s}.pod.p3{animation-delay:.05s}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .pod-emoji{font-size:40px;line-height:1;margin-bottom:6px;display:inline-block}
+  .p1 .pod-emoji{font-size:54px}
+  .crown{display:block;font-size:30px;animation:bob 1.8s ease-in-out infinite;margin-bottom:-4px}
+  @keyframes bob{50%{transform:translateY(-7px) rotate(-6deg)}}
+  .pod-name{font-weight:700;font-size:14px;line-height:1.2;margin-bottom:8px;min-height:34px;display:flex;align-items:flex-end;justify-content:center;text-transform:uppercase}
+  .block{border-radius:26px 26px 6px 6px;padding:12px 6px;position:relative;overflow:hidden;color:var(--ink)}
+  .block::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);animation:sweep 3.5s ease-in-out infinite}
+  @keyframes sweep{0%,60%{left:-60%}100%{left:130%}}
+  .p1 .block{height:150px;background:#fff}
+  .p2 .block{height:115px;background:#e2dcf7}
+  .p3 .block{height:90px;background:var(--lav)}
+  .place{font-family:var(--display);font-size:44px;line-height:.8}
+  .pod-pts{font-weight:700;font-size:22px;margin-top:4px}
+  .pod-pts small{font-family:var(--hand);font-size:14px;font-weight:400;opacity:.8;display:block;text-transform:uppercase}
+
+  .section-title{font-family:var(--hand);font-size:24px;text-transform:uppercase;margin:36px 0 12px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .section-title span{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:12px;color:var(--muted);text-transform:none}
+  .rows{display:flex;flex-direction:column;gap:10px}
+  .row{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:12px 14px;cursor:pointer;backdrop-filter:blur(6px);
+    opacity:0;transform:translateX(-20px);animation:slide .5s ease forwards;transition:background .2s,transform .2s}
+  .row:hover{background:var(--panel2)}
+  .row:active{transform:scale(.99)}
+  .row.r1{background:#fff;color:var(--ink)}
+  .row.r1 .gap,.row.r1 .pts small{color:#6b5ca5}
+  .row.r1 .bar{background:#e2dcf7}
+  .row.r1 .badge{background:#efebfb;color:var(--ink)}
+  @keyframes slide{to{opacity:1;transform:none}}
+  .row-top{display:grid;grid-template-columns:38px 40px 1fr auto;align-items:center;gap:10px}
+  .rank{font-family:var(--display);font-size:34px;line-height:.8;text-align:center}
+  .emoji{font-size:26px;width:40px;height:40px;display:grid;place-items:center;border-radius:50%;background:var(--panel2);border:2px solid var(--team)}
+  .row.r1 .emoji{background:#efebfb}
+  .name{font-weight:700;font-size:16px;line-height:1.2;text-transform:uppercase}
+  .badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+  .badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.16);color:#fff;white-space:nowrap}
+  .badge.up::first-letter{color:#b8ffb0}.badge.down::first-letter{color:#ffb3c8}
+  .row.r1 .badge.up::first-letter{color:#1f9a3c}.row.r1 .badge.down::first-letter{color:#c2185b}
+  .pts{text-align:right}
+  .pts b{font-weight:700;font-size:26px;display:block;line-height:1;font-variant-numeric:tabular-nums}
+  .pts small{font-family:var(--hand);font-size:14px;color:var(--muted);text-transform:uppercase}
+  .bar{height:8px;background:rgba(255,255,255,.14);border-radius:999px;margin-top:12px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;border-radius:999px;background:var(--team);transition:width 1.4s cubic-bezier(.2,1,.3,1)}
+  .gap{font-size:12px;color:var(--muted);margin-top:8px}
+  .detail{display:none;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+  .row.r1 .detail{border-color:#d6cff0}
+  .row.open .detail{display:block}
+  .days{display:grid;grid-template-columns:repeat(auto-fit,minmax(56px,1fr));gap:6px}
+  .day{background:rgba(255,255,255,.12);border-radius:14px;padding:8px 4px;text-align:center}
+  .row.r1 .day{background:#efebfb}
+  .day small{display:block;font-family:var(--hand);font-size:14px;opacity:.8;text-transform:uppercase}
+  .day b{font-weight:700;font-size:17px}
+  .day.empty b{opacity:.35}
+
+  .howto{margin-top:36px;background:#fff;color:var(--ink);border-radius:28px;padding:20px;transform:rotate(-1deg)}
+  .howto h3{font-family:var(--display);font-weight:400;font-size:40px;line-height:.9;text-transform:lowercase;margin-bottom:6px;color:#6b5ca5}
+  .howto p{font-size:15px;line-height:1.5}
+  footer{text-align:center;color:var(--muted);font-family:var(--hand);font-size:16px;text-transform:uppercase;margin-top:28px}
+
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+  .edit-btn{position:fixed;right:16px;bottom:16px;z-index:40;background:#fff;color:var(--ink);border:none;border-radius:999px;
+    padding:12px 18px;font-weight:700;font-family:inherit;font-size:14px;cursor:pointer;box-shadow:0 8px 24px rgba(46,37,82,.5)}
+  .editor{position:fixed;inset:0;z-index:60;background:rgba(46,37,82,.8);backdrop-filter:blur(6px);display:none;overflow:auto;padding:20px 12px}
+  .editor.show{display:block}
+  .ed-card{max-width:620px;margin:0 auto;background:#fff;color:var(--ink);border-radius:24px;padding:18px}
+  .ed-card h2{font-family:var(--display);font-weight:400;font-size:40px;line-height:.9;text-transform:lowercase;color:#6b5ca5;margin-bottom:6px}
+  .ed-card p{color:#5a5180;font-size:13px;line-height:1.5;margin-bottom:12px}
+  .ed-days{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+  .ed-days button{background:#efebfb;border:none;color:var(--ink);border-radius:999px;padding:8px 14px;font-family:inherit;font-weight:700;cursor:pointer}
+  .ed-days button.on{background:#6b5ca5;color:#fff}
+  .ed-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #ece8f8}
+  .ed-row .nm{font-weight:700;font-size:14px}
+  .ed-row .nm small{display:block;color:#7d74a3;font-weight:500}
+  .stepper{display:flex;align-items:center;gap:6px}
+  .stepper button{width:34px;height:34px;border-radius:50%;border:none;background:#efebfb;color:var(--ink);font-size:18px;font-weight:700;cursor:pointer}
+  .stepper input{width:64px;height:34px;border-radius:999px;border:1px solid #d6cff0;background:#fff;color:var(--ink);text-align:center;font-family:inherit;font-size:15px;font-weight:700}
+  .ed-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .ed-actions button{flex:1;min-width:140px;padding:12px;border-radius:999px;border:none;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer}
+  .primary{background:#6b5ca5;color:#fff}
+  .ghost{background:#efebfb;color:var(--ink)}
+  textarea.code{width:100%;height:160px;margin-top:12px;background:#2e2552;color:#e2dcf7;border:none;border-radius:14px;padding:10px;font-family:ui-monospace,monospace;font-size:11px;display:none}
+  .toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%) translateY(20px);background:#fff;color:var(--ink);
+    padding:10px 16px;border-radius:999px;font-weight:700;font-size:14px;opacity:0;transition:.25s;z-index:70;pointer-events:none}
+  .toast.show{opacity:1;transform:translateX(-50%)}
+
+  @media (max-width:420px){
+    .row-top{grid-template-columns:30px 36px 1fr auto;gap:8px}
+    .emoji{width:36px;height:36px;font-size:22px}
+    .name{font-size:14px}
+    .pts b{font-size:22px}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.pod,.row{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<div class="wrap">
+  <header>
+    <svg class="splat" viewBox="0 0 100 100" aria-hidden="true"><path fill="#fff" d="M46 6c8-2 13 5 11 14l-2 14 12-9c7-6 16-3 17 5 1 7-5 11-12 13l-12 4 13 5c8 3 11 11 5 16-6 5-13 1-17-6l-6-11-3 15c-2 9-9 13-15 9-6-4-4-12 2-18l9-9-15 1c-9 1-14-5-11-11 3-6 11-6 18-2l12 6-5-14c-3-8-3-17 3-19z"/></svg>
+    <span class="kicker"><span class="live-dot"></span><span id="kicker"></span></span>
+    <img class="logo" id="logo" alt="" style="display:none">
+    <h1 id="title"></h1>
+    <p class="sub" id="subtitle"></p>
+    <div class="meta">
+      <div class="chip">Updated <b id="updated"></b></div>
+      <div class="chip countdown" id="countdownChip">Race day in <b id="countdown"></b></div>
+    </div>
+  </header>
+
+  <div class="ticker"><div class="ticker-track" id="ticker"></div></div>
+
+  <section class="podium" id="podium"></section>
+
+  <div class="section-title">Full standings <span>Tap a team for daily points</span></div>
+  <section class="rows" id="rows"></section>
+
+  <div class="howto">
+    <h3 id="howtoTitle"></h3>
+    <p id="howtoText"></p>
+  </div>
+
+  <footer id="footer"></footer>
+</div>
+
+<button class="edit-btn" id="editBtn" style="display:none">✏️ Update points</button>
+
+<div class="editor" id="editor">
+  <div class="ed-card">
+    <h2>Update points</h2>
+    <p>Pick the day, set each team's points for that day, then tap <b>Copy updated code</b>. On GitHub, open index.html, replace everything between START EDITING and STOP EDITING with what you copied, and commit. Changes here are a preview only until you do that.</p>
+    <div class="ed-days" id="edDays"></div>
+    <div id="edRows"></div>
+    <div class="ed-actions">
+      <button class="ghost" id="edClose">Preview</button>
+      <button class="primary" id="edCopy">Copy updated code</button>
+    </div>
+    <textarea class="code" id="edCode" readonly></textarea>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== START EDITING ===================== */
+const CONFIG = {
+  "kicker": "For the outlaws",
+  "title": "rap sheet",
+  "logo": "",
+  "subtitle": "Live leaderboard. Every point counts.",
+  "unit": "pts",
+  "updated": "Wed 11 Nov, 09:00",
+  "raceDate": "2026-12-05T06:00:00+02:00",
+  "days": ["Mon", "Tue", "Wed", "Thu", "Fri"],
+  "ticker": [
+    "🚨 Fresh points just landed",
+    "Max 2 challenges per day, choose wisely",
+    "Tag @upactive on IG for proof",
+    "Last place on Saturday can still win the week",
+    "Submissions close 18:00 the night before race day"
+  ],
+  "howtoTitle": "How to score",
+  "howtoText": "Complete challenges from the Rap Sheet, post your proof on IG and tag @upactive or drop it in the WhatsApp group. Points get added daily. Stay hungry.",
+  "teams": [
+    { "name": "Sole Survivors",     "emoji": "🦶", "color": "#ffffff", "points": { "Mon": 12, "Tue": 9 } },
+    { "name": "Chafe Lords",        "emoji": "🔥", "color": "#ffb3d1", "points": { "Mon": 8,  "Tue": 14 } },
+    { "name": "The Pace Makers",    "emoji": "⚡", "color": "#a8ecff", "points": { "Mon": 10, "Tue": 7 } },
+    { "name": "Gel Pack Gang",      "emoji": "🍯", "color": "#ffe58a", "points": { "Mon": 6,  "Tue": 11 } },
+    { "name": "West Coast Wolves",  "emoji": "🐺", "color": "#d4c4ff", "points": { "Mon": 9,  "Tue": 4 } },
+    { "name": "Snack Attack",       "emoji": "🥨", "color": "#ffc49e", "points": { "Mon": 4,  "Tue": 6 } },
+    { "name": "Hill Yeah",          "emoji": "⛰️", "color": "#b0ffd6", "points": { "Mon": 5,  "Tue": 3 } },
+    { "name": "Slow But Spicy",     "emoji": "🌶️", "color": "#ff9e9e", "points": { "Mon": 2,  "Tue": 5 } }
+  ]
+};
+/* ===================== STOP EDITING ====================== */
+
+/* ---------- Nothing below needs touching ---------- */
+const $ = id => document.getElementById(id);
+let data = JSON.parse(JSON.stringify(CONFIG));
+
+function total(t){ return Object.values(t.points || {}).reduce((a,b)=>a+(Number(b)||0),0); }
+function latestDay(d){
+  let idx = -1;
+  d.teams.forEach(t => Object.keys(t.points||{}).forEach(k => { const i = d.days.indexOf(k); if (i > idx) idx = i; }));
+  return idx >= 0 ? d.days[idx] : null;
+}
+function rankList(list, key){
+  const sorted = [...list].sort((a,b)=> b[key]-a[key] || a.name.localeCompare(b.name));
+  let r = 0, prev = null;
+  sorted.forEach((t,i)=>{ if (t[key] !== prev){ r = i+1; prev = t[key]; } t[key+"Rank"] = r; });
+  return sorted;
+}
+function u(n){ const x=data.unit; return n===1 && x.endsWith('s') ? x.slice(0,-1) : x; }
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+function countUp(el, to){
+  const dur = 1200, start = performance.now();
+  const step = now => {
+    const p = Math.min(1,(now-start)/dur), e = 1-Math.pow(1-p,3);
+    el.textContent = Math.round(to*e);
+    if (p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function render(){
+  const d = data, unit = d.unit;
+  $("kicker").textContent = d.kicker;
+  $("title").textContent = d.title;
+  if (d.logo){ $("logo").src = d.logo; $("logo").alt = d.title; $("logo").style.display = "block"; $("title").style.display = "none"; }
+  $("subtitle").textContent = d.subtitle;
+  $("updated").textContent = d.updated;
+  $("howtoTitle").textContent = d.howtoTitle;
+  $("howtoText").textContent = d.howtoText;
+  document.title = "Outlaw " + d.title + " | Live Leaderboard";
+
+  const items = d.ticker.map(t=>`<span>${esc(t)}</span><span>✦</span>`).join("");
+  $("ticker").innerHTML = items + items;
+
+  const last = latestDay(d);
+  const teams = d.teams.map(t => {
+    const tot = total(t);
+    const todayPts = last ? (Number(t.points[last])||0) : 0;
+    return { ...t, total: tot, today: todayPts, before: tot - todayPts };
+  });
+  rankList(teams, "before");
+  const ranked = rankList(teams, "total");
+  const top = ranked.length ? ranked[0].total : 0;
+  const maxToday = Math.max(0, ...ranked.map(t=>t.today));
+
+  // Podium
+  const order = [ranked[1], ranked[0], ranked[2]];
+  const cls = ["p2","p1","p3"];
+  $("podium").innerHTML = order.map((t,i)=> !t ? "<div></div>" : `
+    <div class="pod ${cls[i]}" data-name="${esc(t.name)}">
+      ${cls[i]==="p1" ? '<span class="crown">👑</span>' : ""}
+      <div class="pod-emoji">${esc(t.emoji)}</div>
+      <div class="pod-name">${esc(t.name)}</div>
+      <div class="block">
+        <div class="place">${t.totalRank}</div>
+        <div class="pod-pts"><span data-count="${t.total}">0</span><small>${esc(unit)}</small></div>
+      </div>
+    </div>`).join("");
+
+  // Rows
+  $("rows").innerHTML = ranked.map((t,i)=>{
+    const move = last ? t.beforeRank - t.totalRank : 0;
+    const badges = [];
+    if (last && d.days.indexOf(last) > 0){
+      if (move > 0) badges.push(`<span class="badge up">▲ ${move}</span>`);
+      else if (move < 0) badges.push(`<span class="badge down">▼ ${-move}</span>`);
+      else badges.push(`<span class="badge">● held</span>`);
+    }
+    if (t.today > 0) badges.push(`<span class="badge today">+${t.today} ${esc(last)}</span>`);
+    if (maxToday > 0 && t.today === maxToday) badges.push(`<span class="badge fire">🔥 on fire</span>`);
+    if (i === ranked.length-1 && ranked.length > 3) badges.push(`<span class="badge">🐢 comeback loading</span>`);
+
+    const above = ranked.slice(0,i).reverse().find(x => x.total > t.total);
+    const gap = t.totalRank === 1
+      ? (ranked[1] && ranked[1].total < t.total ? `Leading by ${t.total - ranked[1].total} ${esc(u(t.total - ranked[1].total))}. Hold the line.` : `Sharing the top spot. Tense.`)
+      : above ? `${above.total - t.total} ${esc(u(above.total - t.total))} behind ${esc(above.name)}` : `Tied with the team above`;
+
+    const daysHtml = d.days.map(day => {
+      const v = t.points[day];
+      return `<div class="day ${v==null?"empty":""}"><small>${esc(day)}</small><b>${v==null?"·":esc(v)}</b></div>`;
+    }).join("");
+
+    const pct = top ? (t.total/top*100) : 0;
+    return `
+    <div class="row r${t.totalRank}" style="--team:${esc(t.color)};animation-delay:${.7 + i*.07}s">
+      <div class="row-top">
+        <div class="rank">${t.totalRank}</div>
+        <div class="emoji">${esc(t.emoji)}</div>
+        <div><div class="name">${esc(t.name)}</div><div class="badges">${badges.join("")}</div></div>
+        <div class="pts"><b data-count="${t.total}">0</b><small>${esc(unit)}</small></div>
+      </div>
+      <div class="bar"><i data-w="${pct}"></i></div>
+      <div class="gap">${gap}</div>
+      <div class="detail"><div class="days">${daysHtml}</div></div>
+    </div>`;
+  }).join("");
+
+  document.querySelectorAll("[data-count]").forEach(el => countUp(el, Number(el.dataset.count)));
+  setTimeout(()=> document.querySelectorAll(".bar i").forEach(el => el.style.width = el.dataset.w + "%"), 800);
+  document.querySelectorAll(".row").forEach(r => r.addEventListener("click", ()=> r.classList.toggle("open")));
+  document.querySelectorAll(".pod.p1").forEach(p => p.addEventListener("click", ()=> confetti(140)));
+
+  $("footer").innerHTML = `Made with sweat and electrolytes. Refresh for the latest standings.`;
+}
+
+// Countdown
+function tick(){
+  const target = new Date(data.raceDate).getTime();
+  if (isNaN(target)) { $("countdownChip").style.display = "none"; return; }
+  let s = Math.floor((target - Date.now())/1000);
+  if (s <= 0){ $("countdownChip").innerHTML = "<b>🏁 RACE DAY 🏁</b>"; return; }
+  const dd = Math.floor(s/86400); s%=86400;
+  const hh = Math.floor(s/3600); s%=3600;
+  const mm = Math.floor(s/60); const ss = s%60;
+  $("countdown").textContent = `${dd}d ${String(hh).padStart(2,"0")}h ${String(mm).padStart(2,"0")}m ${String(ss).padStart(2,"0")}s`;
+}
+
+// Confetti
+const cv = $("confetti"), cx = cv.getContext("2d");
+let bits = [];
+function sizeCanvas(){ cv.width = innerWidth*devicePixelRatio; cv.height = innerHeight*devicePixelRatio; }
+addEventListener("resize", sizeCanvas); sizeCanvas();
+function confetti(n){
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const colors = ["#ffffff","#e2dcf7","#b9aee6","#8f80cc","#ffffff"];
+  const dpr = devicePixelRatio;
+  for (let i=0;i<n;i++) bits.push({
+    x: cv.width/2 + (Math.random()-.5)*cv.width*.3, y: cv.height*.35,
+    vx:(Math.random()-.5)*14*dpr, vy:(-Math.random()*14-4)*dpr, g:.35*dpr,
+    w:(6+Math.random()*6)*dpr, h:(8+Math.random()*10)*dpr, r:Math.random()*6, vr:(Math.random()-.5)*.3,
+    c:colors[i%colors.length], life:0
+  });
+  if (bits.length === n) requestAnimationFrame(draw);
+}
+function draw(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  bits.forEach(b=>{ b.vy+=b.g; b.vx*=.99; b.x+=b.vx; b.y+=b.vy; b.r+=b.vr; b.life++;
+    cx.save(); cx.translate(b.x,b.y); cx.rotate(b.r); cx.fillStyle=b.c; cx.fillRect(-b.w/2,-b.h/2,b.w,b.h); cx.restore(); });
+  bits = bits.filter(b => b.y < cv.height + 40 && b.life < 400);
+  if (bits.length) requestAnimationFrame(draw); else cx.clearRect(0,0,cv.width,cv.height);
+}
+
+// Editor (open with ?edit at the end of the link)
+let edDay = null;
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2200); }
+function openEditor(){
+  edDay = edDay || latestDay(data) || data.days[0];
+  $("edDays").innerHTML = data.days.map(dy=>`<button class="${dy===edDay?"on":""}" data-d="${esc(dy)}">${esc(dy)}</button>`).join("");
+  $("edDays").querySelectorAll("button").forEach(b=> b.onclick = ()=>{ edDay=b.dataset.d; openEditor(); });
+  $("edRows").innerHTML = data.teams.map((t,i)=>`
+    <div class="ed-row">
+      <div class="nm">${esc(t.emoji)} ${esc(t.name)}<small>Total: ${total(t)} ${esc(data.unit)}</small></div>
+      <div class="stepper">
+        <button data-i="${i}" data-s="-1">−</button>
+        <input type="number" inputmode="numeric" data-i="${i}" value="${t.points[edDay] ?? ""}" placeholder="0">
+        <button data-i="${i}" data-s="1">+</button>
+      </div>
+    </div>`).join("");
+  $("edRows").querySelectorAll("input").forEach(inp => inp.oninput = ()=>{
+    const t = data.teams[inp.dataset.i];
+    if (inp.value === "") delete t.points[edDay]; else t.points[edDay] = Number(inp.value);
+  });
+  $("edRows").querySelectorAll("button").forEach(b => b.onclick = ()=>{
+    const t = data.teams[b.dataset.i];
+    t.points[edDay] = Math.max(0,(Number(t.points[edDay])||0) + Number(b.dataset.s));
+    openEditor();
+  });
+  $("editor").classList.add("show");
+}
+function buildCode(){
+  const now = new Date();
+  data.updated = now.toLocaleDateString("en-ZA",{weekday:"short",day:"numeric",month:"short"}) + ", " +
+                 now.toLocaleTimeString("en-ZA",{hour:"2-digit",minute:"2-digit",hour12:false});
+  // keep day keys in week order
+  data.teams.forEach(t => { const o={}; data.days.forEach(dy=>{ if (t.points[dy]!=null) o[dy]=t.points[dy]; }); t.points=o; });
+  return "const CONFIG = " + JSON.stringify(data, null, 2) + ";";
+}
+$("edClose").onclick = ()=>{ $("editor").classList.remove("show"); render(); confetti(80); };
+$("edCopy").onclick = async ()=>{
+  const code = buildCode(), ta = $("edCode");
+  ta.value = code; ta.style.display = "block";
+  try { await navigator.clipboard.writeText(code); toast("Copied! Paste it into GitHub ✅"); }
+  catch(e){ ta.select(); document.execCommand("copy"); toast("Copied (or long-press the box to copy)"); }
+};
+$("editBtn").onclick = openEditor;
+if (new URLSearchParams(location.search).has("edit")) $("editBtn").style.display = "block";
+
+render();
+tick(); setInterval(tick, 1000);
+setTimeout(()=> confetti(120), 1300);
+</script>
+</body>
+</html>
