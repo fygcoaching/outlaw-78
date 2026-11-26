@@ -238,6 +238,7 @@ const CONFIG = {
   "kicker": "For the outlaws",
   "title": "The Rap Sheet",
   "subtitle": "Live leaderboard / Every point counts",
+  "totalTeams": 15,
   "unit": "pts",
   "updated": "Kick-off soon",
   "raceDate": "2026-12-05T06:00:00+02:00",
@@ -252,21 +253,15 @@ const CONFIG = {
   "howtoTitle": "How to score",
   "howtoText": "Complete challenges from the Rap Sheet, post your proof on IG and tag @upactive or drop it in the WhatsApp group. Points get added daily. Stay hungry.",
   "teams": [
-    { "name": "Sole Survivors", "icon": "shoe", "points": {} },
-    { "name": "Chafe Lords", "icon": "flame", "points": {} },
-    { "name": "The Pace Makers", "icon": "bolt", "points": {} },
-    { "name": "Gel Pack Gang", "icon": "drop", "points": {} },
-    { "name": "West Coast Wolves", "icon": "wave", "points": {} },
-    { "name": "Snack Attack", "points": {} },
-    { "name": "Hill Yeah", "icon": "mountain", "points": {} },
-    { "name": "Slow But Spicy", "icon": "sun", "points": {} },
-    { "name": "Blister Sisters", "icon": "heart", "points": {} },
-    { "name": "Lost Pace", "points": {} },
-    { "name": "Running Late", "icon": "arrow", "points": {} },
-    { "name": "Carb Crew", "icon": "star", "points": {} },
-    { "name": "Yzer Riders", "icon": "pin", "points": {} },
-    { "name": "Kilometre Club", "points": {} },
-    { "name": "Night Shift", "icon": "splat", "points": {} }
+    { "name": "Chevrolegs", "points": {} },
+    { "name": "Huis Toe", "points": {} },
+    { "name": "Outlaws and Disorderly", "points": {} },
+    { "name": "Pepper", "points": {} },
+    { "name": "Salt", "points": {} },
+    { "name": "Team STRØMM", "points": {} },
+    { "name": "The Fugitives", "points": {} },
+    { "name": "The Monday Running Crew", "points": {} },
+    { "name": "The Rapid Response Team", "points": {} }
   ]
 };
 /* ===================== STOP EDITING ====================== */
@@ -340,7 +335,7 @@ function render(){
   $("podium").style.display = top === 0 ? "none" : "";
   $("waiting").style.display = top === 0 ? "block" : "none";
   $("wSplat").innerHTML = ICONS.splat;
-  $("wCount").textContent = d.teams.length;
+  $("wCount").textContent = d.totalTeams || d.teams.length;
   $("podium").innerHTML = order.map((t,i)=> !t ? "<div></div>" : `
     <div class="pod ${cls[i]}">
       ${cls[i]==="p1" ? `<span class="crown">${ICONS.splat}</span>` : ""}
